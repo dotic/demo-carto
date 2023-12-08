@@ -6,11 +6,11 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
 import { CommonModule } from '@angular/common';
 import Geohash from 'latlon-geohash';
-import {H3Index, latLngToCell, cellToBoundary, CoordPair} from "h3-js";
-import {FeatureCollection, Polygon} from 'geojson';
-import {GeoJSON, Layer} from 'leaflet';
+import { H3Index, latLngToCell, cellToBoundary, CoordPair } from "h3-js";
+import { Polygon } from 'geojson';
+import { GeoJSON } from 'leaflet';
 
-enum MapState {
+enum MapStateEnum {
   S2 = 'S2',
   H3 = 'H3',
   GH = 'GH'
@@ -32,8 +32,8 @@ export class AppComponent implements AfterViewInit{
   public layer!: GeoJSON;
 
 
-  protected mapState!: MapState;
-  protected readonly MapState = MapState;
+  protected mapState!: MapStateEnum;
+  protected readonly MapStateEnum = MapStateEnum;
   private map!: leaflet.Map;
 
   public ngAfterViewInit(): void {
@@ -69,29 +69,16 @@ export class AppComponent implements AfterViewInit{
     });
   }
 
-  // public s2Cell() {
-  //   const cellId = S2CellId.fromPoint(
-  //     S2LatLng.fromDegrees(this.latitude, this.longitude).toPoint()
-  //   );
-  //
-  //   const cell = new S2Cell(cellId);
-  //   const geojson = cell.toGEOJSON();
-  //
-  //   console.log(geojson);
-  //
-  //   const layer = leaflet.geoJson().addTo(this.map);
-  //   // layer.addData(cell.toGEOJSON());
-  // }
-
   public setCoordinate(): void {
+    this.clearMap();
     switch (this.mapState) {
-      case MapState.H3:
+      case MapStateEnum.H3:
         this.createH3Zone();
         break;
-      case MapState.GH:
+      case MapStateEnum.GH:
         this.geoHash();
         break;
-      case MapState.S2:
+      case MapStateEnum.S2:
         break;
     }
   }
@@ -112,9 +99,9 @@ export class AppComponent implements AfterViewInit{
   }
 
   private initMapControls(): void {
-    const h3Control = this.createControl('H3', () => this.mapState = MapState.H3);
-    const s2Control = this.createControl('S2', () => this.mapState = MapState.S2);
-    const geoHashControl = this.createControl('GH', () => this.mapState = MapState.GH);
+    const h3Control = this.createControl('H3', () => this.mapState = MapStateEnum.H3);
+    const s2Control = this.createControl('S2', () => this.mapState = MapStateEnum.S2);
+    const geoHashControl = this.createControl('GH', () => this.mapState = MapStateEnum.GH);
 
     new h3Control({ position: 'topright' }).addTo(this.map);
     new s2Control({ position: 'topright' }).addTo(this.map);
@@ -145,10 +132,9 @@ export class AppComponent implements AfterViewInit{
   }
 
   private createH3Zone() {
+    const popup = new leaflet.Popup();
     const index: H3Index = latLngToCell(this.latitude, this.longitude, this.h3Resolution);
     const boundary: CoordPair[] = cellToBoundary(index, true);
-
-    this.clearMap();
 
     const polygon: Polygon = {
       "coordinates": [
@@ -158,7 +144,12 @@ export class AppComponent implements AfterViewInit{
     }
 
     this.layer = leaflet.geoJSON(polygon).addTo(this.map);
-
     this.map.fitBounds(this.layer.getBounds());
+
+    this.layer.on('click', () => {
+      popup.setLatLng(this.layer.getBounds().getCenter());
+      popup.setContent(index);
+      this.map.openPopup(popup);
+    });
   }
 }
