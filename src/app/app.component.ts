@@ -1,11 +1,12 @@
 import { AfterViewInit, Component } from '@angular/core';
-import {FormsModule} from '@angular/forms';
+import { FormsModule } from '@angular/forms';
 import { RouterOutlet } from '@angular/router';
+import { Polygon } from 'geojson';
 import * as leaflet from 'leaflet';
-import { MatButtonModule} from '@angular/material/button';
-import {MatInputModule} from '@angular/material/input';
-import {CommonModule} from '@angular/common';
-import {h3ToGeo} from "h3-js";
+import { MatButtonModule } from '@angular/material/button';
+import { MatInputModule } from '@angular/material/input';
+import { CommonModule } from '@angular/common';
+import Geohash from 'latlon-geohash';
 
 enum Data {
   S2 = 'S2',
@@ -23,7 +24,7 @@ enum Data {
 export class AppComponent implements AfterViewInit{
   public latitude!: number;
   public longitude!: number;
-  public resolution = 9; // You can set the resolution of your choosing here
+  public resolution = 7; // You can set the resolution of your choosing here
 
 
   private map!: leaflet.Map;
@@ -33,12 +34,44 @@ export class AppComponent implements AfterViewInit{
     this.initMapControls();
   }
 
-  public setCoordinate(): void {
-    console.log(this.latitude);
-    console.log(this.longitude);
+  public geoHash() {
+    const geohash: string = Geohash.encode(this.latitude, this.longitude, this.resolution);
+    const bound = Geohash.bounds(geohash);
 
-    const index = h(this.latitude, this.longitude, this.resolution);
-    const h3Index = h3.geoToH3(37.3615593, -122.0553238, 7);  }
+    const polygon: Polygon = {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [bound.sw.lon, bound.ne.lat],
+          [bound.ne.lon, bound.ne.lat],
+          [bound.ne.lon, bound.sw.lat],
+          [bound.sw.lon, bound.sw.lat],
+          [bound.sw.lon, bound.ne.lat],
+        ]
+      ]
+    }
+
+    const polygon_layer = leaflet.geoJSON(polygon).addTo(this.map);
+    this.map.fitBounds(polygon_layer.getBounds());
+  }
+
+  // public s2Cell() {
+  //   const cellId = S2CellId.fromPoint(
+  //     S2LatLng.fromDegrees(this.latitude, this.longitude).toPoint()
+  //   );
+  //
+  //   const cell = new S2Cell(cellId);
+  //   const geojson = cell.toGEOJSON();
+  //
+  //   console.log(geojson);
+  //
+  //   const layer = leaflet.geoJson().addTo(this.map);
+  //   // layer.addData(cell.toGEOJSON());
+  // }
+
+  public setCoordinate(): void {
+    this.geoHash();
+  }
 
   private initMap(): void {
     this.map = leaflet.map('map', {
@@ -69,7 +102,7 @@ export class AppComponent implements AfterViewInit{
   private createControl(name: string, clickHandler: () => void): any {
     return leaflet.Control.extend({
       onAdd: function () {
-          const element = leaflet.DomUtil.create('button', 'leaflet-bar leaflet-custom-control');
+        const element = leaflet.DomUtil.create('button', 'leaflet-bar leaflet-custom-control');
 
         element.innerHTML = name;
         element.addEventListener('click', (e) => {
