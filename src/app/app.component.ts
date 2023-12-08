@@ -1,16 +1,19 @@
 import { AfterViewInit, Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterOutlet } from '@angular/router';
-import { Polygon } from 'geojson';
 import * as leaflet from 'leaflet';
 import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
 import { CommonModule } from '@angular/common';
 import Geohash from 'latlon-geohash';
+import {H3Index, latLngToCell, cellToBoundary, CoordPair} from "h3-js";
+import {FeatureCollection, Polygon} from 'geojson';
+import {GeoJSON, Layer} from 'leaflet';
 
-enum Data {
+enum MapState {
   S2 = 'S2',
   H3 = 'H3',
+  GH = 'GH'
 }
 
 @Component({
@@ -22,11 +25,14 @@ enum Data {
 })
 
 export class AppComponent implements AfterViewInit{
-  public latitude!: number;
-  public longitude!: number;
+  public latitude: number = 44.874349694274;
+  public longitude: number = -0.5782135318973474;
   public resolution = 7; // You can set the resolution of your choosing here
+  public h3Resolution = 9;
+  public layer!: GeoJSON;
 
 
+  protected mapState!: MapState;
   private map!: leaflet.Map;
 
   public ngAfterViewInit(): void {
@@ -77,13 +83,22 @@ export class AppComponent implements AfterViewInit{
   // }
 
   public setCoordinate(): void {
-    this.geoHash();
+    switch (this.mapState) {
+      case MapState.H3:
+        this.createH3Zone();
+        break;
+      case MapState.GH:
+        this.geoHash();
+        break;
+      case MapState.S2:
+        break;
+    }
   }
 
   private initMap(): void {
     this.map = leaflet.map('map', {
-      center: [ 39.8282, -98.5795 ],
-      zoom: 3
+      center: [ 44.837789, -0.57918 ],
+      zoom: 9,
     });
 
     const tiles = leaflet.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -96,9 +111,9 @@ export class AppComponent implements AfterViewInit{
   }
 
   private initMapControls(): void {
-    const h3Control = this.createControl('H3', () => {});
-    const s2Control = this.createControl('S2', () => {});
-    const geoHashControl = this.createControl('GH', () => {});
+    const h3Control = this.createControl('H3', () => this.mapState = MapState.H3);
+    const s2Control = this.createControl('S2', () => this.mapState = MapState.S2);
+    const geoHashControl = this.createControl('GH', () => this.mapState = MapState.GH);
 
     new h3Control({ position: 'topright' }).addTo(this.map);
     new s2Control({ position: 'topright' }).addTo(this.map);
@@ -120,4 +135,28 @@ export class AppComponent implements AfterViewInit{
       },
     });
   }
+
+  private clearMap() {
+    this.map.removeLayer(this.layer);
+  }
+
+  private createH3Zone() {
+    const index: H3Index = latLngToCell(this.latitude, this.longitude, this.h3Resolution);
+    const boundary: CoordPair[] = cellToBoundary(index, true);
+
+    this.clearMap();
+
+    const polygon: Polygon = {
+      "coordinates": [
+        boundary,
+      ],
+      "type": "Polygon"
+    }
+
+    this.layer = leaflet.geoJSON(polygon).addTo(this.map);
+
+    this.map.fitBounds(this.layer.getBounds());
+  }
+
+  protected readonly MapState = MapState;
 }
