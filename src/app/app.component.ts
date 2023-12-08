@@ -35,6 +35,7 @@ export class AppComponent implements AfterViewInit{
   }
 
   public geoHash() {
+    const popup = new leaflet.Popup();
     const geohash: string = Geohash.encode(this.latitude, this.longitude, this.resolution);
     const bound = Geohash.bounds(geohash);
 
@@ -53,6 +54,12 @@ export class AppComponent implements AfterViewInit{
 
     const polygon_layer = leaflet.geoJSON(polygon).addTo(this.map);
     this.map.fitBounds(polygon_layer.getBounds());
+
+    polygon_layer.on('click', () => {
+      popup.setLatLng(polygon_layer.getBounds().getCenter());
+      popup.setContent(geohash);
+      this.map.openPopup(popup);
+    });
   }
 
   // public s2Cell() {
@@ -96,7 +103,6 @@ export class AppComponent implements AfterViewInit{
     new h3Control({ position: 'topright' }).addTo(this.map);
     new s2Control({ position: 'topright' }).addTo(this.map);
     new geoHashControl({ position: 'topright' }).addTo(this.map);
-
   }
 
   private createControl(name: string, clickHandler: () => void): any {
