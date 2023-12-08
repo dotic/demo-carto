@@ -8,12 +8,10 @@
       <label>Longitude</label>
       <input [(ngModel)]="longitude" matInput type="number" name="lng" min="-180" max="180">
     </mat-form-field>
-    @if (mapState === MapStateEnum.H3) {
       <mat-form-field>
-        <label>Résolution H3</label>
-        <input [(ngModel)]="h3Resolution" matInput type="number" name="lng" min="0" max="15">
+        <label>Résolution</label>
+        <input [(ngModel)]="resolution" matInput type="number" name="lng" min="0" max="15">
       </mat-form-field>
-    }
     <button mat-raised-button color="primary" (click)="setCoordinate()">Set</button>
   </div>
   <div class="map-container">

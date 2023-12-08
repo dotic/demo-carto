@@ -6,7 +6,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
 import { CommonModule } from '@angular/common';
 import Geohash from 'latlon-geohash';
-import { H3Index, latLngToCell, cellToBoundary, CoordPair } from "h3-js";
+import { H3Index, latLngToCell, cellToBoundary, CoordPair } from 'h3-js';
 import { Polygon } from 'geojson';
 import { GeoJSON } from 'leaflet';
 
@@ -27,8 +27,7 @@ enum MapStateEnum {
 export class AppComponent implements AfterViewInit{
   public latitude: number = 44.874349694274;
   public longitude: number = -0.5782135318973474;
-  public resolution = 7; // You can set the resolution of your choosing here
-  public h3Resolution = 9;
+  public resolution = 7;
   public layer!: GeoJSON;
 
 
@@ -41,7 +40,7 @@ export class AppComponent implements AfterViewInit{
     this.initMapControls();
   }
 
-  public geoHash() {
+  public createGeoHash() {
     const popup = new leaflet.Popup();
     const geohash: string = Geohash.encode(this.latitude, this.longitude, this.resolution);
     const bound = Geohash.bounds(geohash);
@@ -76,7 +75,7 @@ export class AppComponent implements AfterViewInit{
         this.createH3Zone();
         break;
       case MapStateEnum.GH:
-        this.geoHash();
+        this.createGeoHash();
         break;
       case MapStateEnum.S2:
         break;
@@ -133,7 +132,7 @@ export class AppComponent implements AfterViewInit{
 
   private createH3Zone() {
     const popup = new leaflet.Popup();
-    const index: H3Index = latLngToCell(this.latitude, this.longitude, this.h3Resolution);
+    const index: H3Index = latLngToCell(this.latitude, this.longitude, this.resolution);
     const boundary: CoordPair[] = cellToBoundary(index, true);
 
     const polygon: Polygon = {

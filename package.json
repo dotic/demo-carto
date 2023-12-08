@@ -25,7 +25,6 @@
     "h3-js": "^4.1.0",
     "latlon-geohash": "^2.0.0",
     "leaflet": "^1.9.4",
-    "long": "^4.0.0",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.14.2"
@@ -36,7 +35,6 @@
     "@angular/compiler-cli": "^17.0.0",
     "@types/jasmine": "~5.1.0",
     "@types/latlon-geohash": "^2.0.3",
-    "@types/long": "^5.0.0",
     "jasmine-core": "~5.1.0",
     "karma": "~6.4.0",
     "karma-chrome-launcher": "~3.2.0",
