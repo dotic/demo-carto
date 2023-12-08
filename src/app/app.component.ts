@@ -4,7 +4,6 @@ import * as leaflet from 'leaflet';
 import { MatButtonModule} from '@angular/material/button';
 import {MatInputModule} from '@angular/material/input';
 import {CommonModule} from '@angular/common';
-import {Control} from 'leaflet';
 
 @Component({
   selector: 'app-root',
@@ -37,9 +36,9 @@ export class AppComponent implements AfterViewInit{
   }
 
   private initMapControls(): void {
-    const h3Control = this.createControl('H3');
-    const s2Control = this.createControl('S2');
-    const geoHashControl = this.createControl('GH');
+    const h3Control = this.createControl('H3', () => {});
+    const s2Control = this.createControl('S2', () => {});
+    const geoHashControl = this.createControl('GH', () => {});
 
     new h3Control({ position: 'topright' }).addTo(this.map);
     new s2Control({ position: 'topright' }).addTo(this.map);
@@ -47,12 +46,16 @@ export class AppComponent implements AfterViewInit{
 
   }
 
-  private createControl(name: string): any {
+  private createControl(name: string, clickHandler: () => void): any {
     return leaflet.Control.extend({
       onAdd: function () {
-        const element = leaflet.DomUtil.create('button', 'leaflet-bar leaflet-custom-control');
+          const element = leaflet.DomUtil.create('button', 'leaflet-bar leaflet-custom-control');
 
         element.innerHTML = name;
+        element.addEventListener('click', (e) => {
+          e.stopPropagation();
+          clickHandler();
+        })
 
         return element;
       },

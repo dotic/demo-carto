@@ -3,10 +3,17 @@
     height: 100%;
   }
 
-  .leaflet-custom- control {
+  .leaflet-custom-control {
     padding: 4px;
+    width: 2rem;
+    height: 2rem;
     background-color: whitesmoke;
     font-weight: bold;
+
+    &:hover {
+      background-color: lightgray;
+      cursor: pointer;
+    }
   }
 
   .map-frame {
