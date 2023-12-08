@@ -2,13 +2,13 @@
   <div class="header">
     <mat-form-field>
       <label>Latitude</label>
-      <input matInput type="number" name="lat" min="-90" max="90">
+      <input [(ngModel)]="latitude" matInput type="number" name="lat" min="-90" max="90">
     </mat-form-field>
     <mat-form-field>
       <label>Longitude</label>
-      <input matInput type="number" name="lng" min="-180" max="180">
+      <input [(ngModel)]="longitude" matInput type="number" name="lng" min="-180" max="180">
     </mat-form-field>
-    <button mat-raised-button color="primary">Set</button>
+    <button mat-raised-button color="primary" (click)="setCoordinate()">Set</button>
   </div>
   <div class="map-container">
     <div class="map-frame">

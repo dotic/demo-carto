@@ -1,24 +1,44 @@
 import { AfterViewInit, Component } from '@angular/core';
+import {FormsModule} from '@angular/forms';
 import { RouterOutlet } from '@angular/router';
 import * as leaflet from 'leaflet';
 import { MatButtonModule} from '@angular/material/button';
 import {MatInputModule} from '@angular/material/input';
 import {CommonModule} from '@angular/common';
+import {h3ToGeo} from "h3-js";
+
+enum Data {
+  S2 = 'S2',
+  H3 = 'H3',
+}
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, MatButtonModule, MatInputModule],
+  imports: [CommonModule, RouterOutlet, MatButtonModule, MatInputModule, FormsModule],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
 })
+
 export class AppComponent implements AfterViewInit{
+  public latitude!: number;
+  public longitude!: number;
+  public resolution = 9; // You can set the resolution of your choosing here
+
+
   private map!: leaflet.Map;
 
   public ngAfterViewInit(): void {
     this.initMap();
     this.initMapControls();
   }
+
+  public setCoordinate(): void {
+    console.log(this.latitude);
+    console.log(this.longitude);
+
+    const index = h(this.latitude, this.longitude, this.resolution);
+    const h3Index = h3.geoToH3(37.3615593, -122.0553238, 7);  }
 
   private initMap(): void {
     this.map = leaflet.map('map', {
