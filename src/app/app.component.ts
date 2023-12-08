@@ -99,11 +99,9 @@ export class AppComponent implements AfterViewInit{
 
   private initMapControls(): void {
     const h3Control = this.createControl('H3', () => this.mapState = MapStateEnum.H3);
-    const s2Control = this.createControl('S2', () => this.mapState = MapStateEnum.S2);
     const geoHashControl = this.createControl('GH', () => this.mapState = MapStateEnum.GH);
 
     new h3Control({ position: 'topright' }).addTo(this.map);
-    new s2Control({ position: 'topright' }).addTo(this.map);
     new geoHashControl({ position: 'topright' }).addTo(this.map);
   }
 
