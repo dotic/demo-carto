@@ -22,7 +22,8 @@
   }
 
   .header {
-    height: 13vh;
+    display: flex;
+    align-items: flex-start;
   }
 
   .map-container {
