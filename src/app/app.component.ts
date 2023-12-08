@@ -33,6 +33,7 @@ export class AppComponent implements AfterViewInit{
 
 
   protected mapState!: MapState;
+  protected readonly MapState = MapState;
   private map!: leaflet.Map;
 
   public ngAfterViewInit(): void {
@@ -58,11 +59,11 @@ export class AppComponent implements AfterViewInit{
       ]
     }
 
-    const polygon_layer = leaflet.geoJSON(polygon).addTo(this.map);
-    this.map.fitBounds(polygon_layer.getBounds());
+    this.layer = leaflet.geoJSON(polygon).addTo(this.map);
+    this.map.fitBounds(this.layer.getBounds());
 
-    polygon_layer.on('click', () => {
-      popup.setLatLng(polygon_layer.getBounds().getCenter());
+    this.layer.on('click', () => {
+      popup.setLatLng(this.layer.getBounds().getCenter());
       popup.setContent(geohash);
       this.map.openPopup(popup);
     });
@@ -137,6 +138,9 @@ export class AppComponent implements AfterViewInit{
   }
 
   private clearMap() {
+    if (!this.layer) {
+      return;
+    }
     this.map.removeLayer(this.layer);
   }
 
@@ -157,6 +161,4 @@ export class AppComponent implements AfterViewInit{
 
     this.map.fitBounds(this.layer.getBounds());
   }
-
-  protected readonly MapState = MapState;
 }
